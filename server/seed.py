@@ -15,8 +15,6 @@ with app.app_context():
     Recipe.query.delete()
     User.query.delete()
 
-    fake = Faker()
-
     print("Creating users...")
 
     # make sure users have unique usernames
@@ -51,9 +49,8 @@ with app.app_context():
             title=fake.sentence(),
             instructions=instructions,
             minutes_to_complete=randint(15,90),
+            user=rc(users)
         )
-
-        recipe.user = rc(users)
 
         recipes.append(recipe)
 

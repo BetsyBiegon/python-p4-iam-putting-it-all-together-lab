@@ -1,17 +1,13 @@
-from sqlalchemy.exc import IntegrityError
-import pytest
+# testing/models_testing/user_test.py
 
-from app import app
-from models import db, User, Recipe
+import pytest
+from sqlalchemy.exc import IntegrityError
+from app import app, db
+from models import User, Recipe
 
 class TestUser:
-    '''User in models.py'''
-
     def test_has_attributes(self):
-        '''has attributes username, _password_hash, image_url, and bio.'''
-        
         with app.app_context():
-
             User.query.delete()
             db.session.commit()
 
@@ -55,10 +51,7 @@ class TestUser:
                 created_user.password_hash
 
     def test_requires_username(self):
-        '''requires each record to have a username.'''
-
         with app.app_context():
-
             User.query.delete()
             db.session.commit()
 
@@ -68,26 +61,22 @@ class TestUser:
                 db.session.commit()
 
     def test_requires_unique_username(self):
-        '''requires each record to have a username.'''
-
         with app.app_context():
-
             User.query.delete()
             db.session.commit()
 
             user_1 = User(username="Ben")
             user_2 = User(username="Ben")
 
+            db.session.add(user_1)
             with pytest.raises(IntegrityError):
-                db.session.add_all([user_1, user_2])
+                db.session.add(user_2)
                 db.session.commit()
 
     def test_has_list_of_recipes(self):
-        '''has records with lists of recipes records attached.'''
-
         with app.app_context():
-
             User.query.delete()
+            Recipe.query.delete()
             db.session.commit()
 
             user = User(username="Prabhdip")
@@ -121,11 +110,9 @@ class TestUser:
             db.session.add_all([user, recipe_1, recipe_2])
             db.session.commit()
 
-            # check that all were created in db
-            assert(user.id)
-            assert(recipe_1.id)
-            assert(recipe_2.id)
+            assert user.id is not None
+            assert recipe_1.id is not None
+            assert recipe_2.id is not None
 
-            # check that recipes were saved to user
-            assert(recipe_1 in user.recipes)
-            assert(recipe_2 in user.recipes)
+            assert recipe_1 in user.recipes
+            assert recipe_2 in user.recipes
